@@ -39,9 +39,11 @@ import Link from 'next/link';
 // Type assertion to bypass TypeScript check
 export default async function ProjectPage({ params }: any) {
   const repo = new WMSRepository();
-  const projectId = parseInt(params.id);
+  const resolvedParams = await params;
+  const projectId = parseInt(resolvedParams.id);
   const project = await repo.getProjectById(projectId);
   if (!project) return <div>Project not found</div>;
+  
 
   const tasks = await repo.getTasksWithSubtasksByProjectId(projectId);
 

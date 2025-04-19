@@ -60,7 +60,7 @@
 //         </div>
 //         <div>
 //           <Label className="block text-sm font-medium">Priority</Label>
-//           <Select name="priority" 
+//           <Select name="priority"
 //           // className="mt-1 w-full border rounded p-2"
 //           >
 //             <option value="">Select Priority</option>
@@ -71,7 +71,7 @@
 //         </div>
 //         <div>
 //           <label className="block text-sm font-medium">Assigned To</label>
-//           <Select name="assignedTo" 
+//           <Select name="assignedTo"
 //           // className="mt-1 w-full border rounded p-2"
 //           >
 //             <option value="">Unassigned</option>
@@ -84,7 +84,7 @@
 //         </div>
 //         <div>
 //           <label className="block text-sm font-medium">Status</label>
-//           <Select name="status" 
+//           <Select name="status"
 //           // className="mt-1 w-full border rounded p-2"
 //           >
 //             <option value="">Select Status</option>
@@ -101,13 +101,20 @@
 //   );
 // }
 
-
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { WMSRepository } from '@/lib/Repository';
-import { redirect } from 'next/navigation';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { WMSRepository } from "@/lib/Repository";
+import { redirect } from "next/navigation";
 
 // Changed the type to 'any' to bypass the TypeScript constraint issue
 // export default async function NewSubtaskPage({ params }: { params: { id: string; taskId: string } }) {
@@ -116,20 +123,27 @@ export default async function NewSubtaskPage({ params }: any) {
   const projectId = parseInt(params.id);
   const taskId = parseInt(params.taskId);
   const task = await repo.getTaskById(taskId);
-  if (!task || task.projectId !== projectId) return <div className="container mx-auto p-6">Task not found</div>;
+  if (!task || task.projectId !== projectId)
+    return <div className="container mx-auto p-6">Task not found</div>;
 
   const users = await repo.getUsers();
 
   async function createSubtask(formData: FormData) {
-    'use server';
+    "use server";
     const repo = new WMSRepository();
-    const name = formData.get('name') as string;
-    const description = formData.get('description')?.toString() || null;
-    const dueDate = formData.get('dueDate') ? new Date(formData.get('dueDate') as string) : null;
-    const timeRequired = formData.get('timeRequired') ? parseInt(formData.get('timeRequired') as string) : null;
-    const priority = formData.get('priority')?.toString() || null;
-    const assignedTo = formData.get('assignedTo') ? parseInt(formData.get('assignedTo') as string) : null;
-    const status = formData.get('status')?.toString() || null;
+    const name = formData.get("name") as string;
+    const description = formData.get("description")?.toString() || null;
+    const dueDate = formData.get("dueDate")
+      ? new Date(formData.get("dueDate") as string)
+      : null;
+    const timeRequired = formData.get("timeRequired")
+      ? parseInt(formData.get("timeRequired") as string)
+      : null;
+    const priority = formData.get("priority")?.toString() || null;
+    const assignedTo = formData.get("assignedTo")
+      ? parseInt(formData.get("assignedTo") as string)
+      : null;
+    const status = formData.get("status")?.toString() || null;
 
     const subtask = await repo.createSubtask(taskId, {
       name,
@@ -139,7 +153,7 @@ export default async function NewSubtaskPage({ params }: any) {
       priority,
       assignedTo,
       status,
-      taskId
+      taskId,
     });
     redirect(`/projects/${projectId}/tasks/${taskId}`);
   }
@@ -150,56 +164,94 @@ export default async function NewSubtaskPage({ params }: any) {
       <form action={createSubtask} className="space-y-4">
         <div>
           <Label className="block text-sm font-medium">Name</Label>
-          <Input type="text" name="name" required className="mt-1 w-full border rounded p-2" />
+          <Input
+            type="text"
+            name="name"
+            required
+            className="mt-1 w-full border rounded p-2"
+          />
         </div>
         <div>
           <Label className="block text-sm font-medium">Description</Label>
-          <Textarea name="description" className="mt-1 w-full border rounded p-2" />
+          <Textarea
+            name="description"
+            className="mt-1 w-full border rounded p-2"
+          />
         </div>
         <div>
           <Label className="block text-sm font-medium">Due Date</Label>
-          <Input type="date" name="dueDate" className="mt-1 w-full border rounded p-2" />
+          <Input
+            type="date"
+            name="dueDate"
+            className="mt-1 w-full border rounded p-2"
+          />
         </div>
         <div>
-          <Label className="block text-sm font-medium">Time Required (hours)</Label>
-          <Input type="number" name="timeRequired" min="0" className="mt-1 w-full border rounded p-2" />
+          <Label className="block text-sm font-medium">
+            Time Required (hours)
+          </Label>
+          <Input
+            type="number"
+            name="timeRequired"
+            min="0"
+            className="mt-1 w-full border rounded p-2"
+          />
         </div>
         <div>
           <Label className="block text-sm font-medium">Priority</Label>
-          <Select name="priority" 
-          // className="mt-1 w-full border rounded p-2"
-          >
-            <option value="">Select Priority</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+          <Select name="priority">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Priority</SelectLabel>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </div>
         <div>
           <label className="block text-sm font-medium">Assigned To</label>
-          <Select name="assignedTo" 
-          // className="mt-1 w-full border rounded p-2"
-          >
-            <option value="">Unassigned</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
+          <Select name="assignedTo">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Assigned To" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Assign To</SelectLabel>
+                {/* <SelectItem value="">Unassigned</SelectItem> */}
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id.toString()}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </div>
         <div>
           <label className="block text-sm font-medium">Status</label>
-          <Select name="status" 
-          // className="mt-1 w-full border rounded p-2"
-          >
-            <option value="">Select Status</option>
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
+          <Select name="status">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Status</SelectLabel>
+                <SelectItem value="todo">To Do</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
           Create
         </button>
       </form>
