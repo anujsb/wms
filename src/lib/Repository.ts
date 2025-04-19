@@ -1,184 +1,83 @@
-// import { db } from '@/lib/db';
-// import { users } from '@/lib/schema';
-// import { eq } from 'drizzle-orm';
-// import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-
-// type UserSelect = InferSelectModel<typeof users>;
-// type UserInsert = InferInsertModel<typeof users>;
-
-// async function getAllUsers(): Promise<UserSelect[]> {
-//   return await db.select().from(users);
-// }
-
-// async function getUserById(id: number): Promise<UserSelect | null> {
-//   const result = await db.select().from(users).where(eq(users.id, id));
-//   return result.length > 0 ? result[0] : null;
-// }
-
-// async function createUser(userData: Partial<UserInsert>): Promise<UserSelect> {
-//   const newUser = await db.insert(users).values({
-//     name: userData.name as string,
-//     email: userData.email as string,
-//     ...userData,
-//   }).returning();
-//   return newUser[0];
-// }
-
-// async function updateUser(id: number, userData: Partial<UserInsert>): Promise<UserSelect | null> {
-//   const updatedUser = await db
-//     .update(users)
-//     .set(userData)
-//     .where(eq(users.id, id))
-//     .returning();
-//   return updatedUser.length > 0 ? updatedUser[0] : null;
-// }
-
-// async function deleteUser(id: number): Promise<boolean> {
-//   const result = await db.delete(users).where(eq(users.id, id)).returning();
-//   return result.length > 0;
-// }
-
-// const userRepository = {
-//   getAllUsers,
-//   getUserById,
-//   createUser,
-//   updateUser,
-//   deleteUser,
-// };
-
-// export default userRepository;
-
-
-
-import { db } from '@/lib/db';
-import { users, projects, tasks, subtasks } from '@/lib/schema';
+import { db } from './db';
+import { projects, tasks, subtasks, users } from './schema';
 import { eq } from 'drizzle-orm';
-import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+import { InferModel } from 'drizzle-orm';
 
-// Infer types for each entity
-type UserSelect = InferSelectModel<typeof users>;
-type UserInsert = InferInsertModel<typeof users>;
-type ProjectSelect = InferSelectModel<typeof projects>;
-type ProjectInsert = InferInsertModel<typeof projects>;
-type TaskSelect = InferSelectModel<typeof tasks>;
-type TaskInsert = InferInsertModel<typeof tasks>;
-type SubtaskSelect = InferSelectModel<typeof subtasks>;
-type SubtaskInsert = InferInsertModel<typeof subtasks>;
+// Define TypeScript types based on schema
+type Project = InferModel<typeof projects>;
+type Task = InferModel<typeof tasks>;
+type Subtask = InferModel<typeof subtasks>;
+type User = InferModel<typeof users>;
 
-export class Repository {
-  // User methods
-  async getAllUsers(): Promise<UserSelect[]> {
-    return await db.select().from(users);
+// Utility type to omit fields that are auto-generated or managed by the DB
+type OmitAutoFields<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
+
+export class WMSRepository {
+  // Project Methods
+  async createProject(data: OmitAutoFields<Project> & { name: string }): Promise<Project> {
+    const [project] = await db.insert(projects).values(data).returning();
+    return project;
   }
 
-  async getUserById(id: number): Promise<UserSelect | null> {
-    const result = await db.select().from(users).where(eq(users.id, id));
-    return result.length > 0 ? result[0] : null;
-  }
-
-  async createUser(userData: Partial<UserInsert>): Promise<UserSelect> {
-    const newUser = await db.insert(users).values(userData).returning();
-    return newUser[0];
-  }
-
-  async updateUser(id: number, userData: Partial<UserInsert>): Promise<UserSelect | null> {
-    const updatedUser = await db
-      .update(users)
-      .set(userData)
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser.length > 0 ? updatedUser[0] : null;
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // Project methods
-  async getAllProjects(): Promise<ProjectSelect[]> {
+  async getProjects(): Promise<Project[]> {
     return await db.select().from(projects);
   }
 
-  async getProjectById(id: number): Promise<ProjectSelect | null> {
-    const result = await db.select().from(projects).where(eq(projects.id, id));
-    return result.length > 0 ? result[0] : null;
+  async getProjectById(id: number): Promise<Project | null> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project || null;
   }
 
-  async createProject(projectData: Partial<ProjectInsert>): Promise<ProjectSelect> {
-    const newProject = await db.insert(projects).values(projectData).returning();
-    return newProject[0];
+  // Task Methods
+  async createTask(projectId: number, data: OmitAutoFields<Task> & { name: string }): Promise<Task> {
+    const [task] = await db.insert(tasks).values({ ...data, projectId }).returning();
+    return task;
   }
 
-  async updateProject(id: number, projectData: Partial<ProjectInsert>): Promise<ProjectSelect | null> {
-    const updatedProject = await db
-      .update(projects)
-      .set(projectData)
-      .where(eq(projects.id, id))
-      .returning();
-    return updatedProject.length > 0 ? updatedProject[0] : null;
+  async getTasksByProjectId(projectId: number): Promise<Task[]> {
+    return await db.select().from(tasks).where(eq(tasks.projectId, projectId));
   }
 
-  async deleteProject(id: number): Promise<boolean> {
-    const result = await db.delete(projects).where(eq(projects.id, id)).returning();
-    return result.length > 0;
+  async getTaskById(id: number): Promise<Task | null> {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task || null;
   }
 
-  // Task methods
-  async getAllTasks(): Promise<TaskSelect[]> {
-    return await db.select().from(tasks);
+  // Subtask Methods
+  async createSubtask(taskId: number, data: OmitAutoFields<Subtask> & { name: string }): Promise<Subtask> {
+    const [subtask] = await db.insert(subtasks).values({ ...data, taskId }).returning();
+    return subtask;
   }
 
-  async getTaskById(id: number): Promise<TaskSelect | null> {
-    const result = await db.select().from(tasks).where(eq(tasks.id, id));
-    return result.length > 0 ? result[0] : null;
+  async getSubtasksByTaskId(taskId: number): Promise<Subtask[]> {
+    return await db.select().from(subtasks).where(eq(subtasks.taskId, taskId));
   }
 
-  async createTask(taskData: Partial<TaskInsert>): Promise<TaskSelect> {
-    const newTask = await db.insert(tasks).values(taskData).returning();
-    return newTask[0];
+  // User Methods (for assignment purposes)
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
-  async updateTask(id: number, taskData: Partial<TaskInsert>): Promise<TaskSelect | null> {
-    const updatedTask = await db
-      .update(tasks)
-      .set(taskData)
-      .where(eq(tasks.id, id))
-      .returning();
-    return updatedTask.length > 0 ? updatedTask[0] : null;
-  }
-
-  async deleteTask(id: number): Promise<boolean> {
-    const result = await db.delete(tasks).where(eq(tasks.id, id)).returning();
-    return result.length > 0;
-  }
-
-  // Subtask methods
-  async getAllSubtasks(): Promise<SubtaskSelect[]> {
-    return await db.select().from(subtasks);
-  }
-
-  async getSubtaskById(id: number): Promise<SubtaskSelect | null> {
-    const result = await db.select().from(subtasks).where(eq(subtasks.id, id));
-    return result.length > 0 ? result[0] : null;
-  }
-
-  async createSubtask(subtaskData: Partial<SubtaskInsert>): Promise<SubtaskSelect> {
-    const newSubtask = await db.insert(subtasks).values(subtaskData).returning();
-    return newSubtask[0];
-  }
-
-  async updateSubtask(id: number, subtaskData: Partial<SubtaskInsert>): Promise<SubtaskSelect | null> {
-    const updatedSubtask = await db
-      .update(subtasks)
-      .set(subtaskData)
-      .where(eq(subtasks.id, id))
-      .returning();
-    return updatedSubtask.length > 0 ? updatedSubtask[0] : null;
-  }
-
-  async deleteSubtask(id: number): Promise<boolean> {
-    const result = await db.delete(subtasks).where(eq(subtasks.id, id)).returning();
-    return result.length > 0;
+  async getTasksWithSubtasksByProjectId(projectId: number): Promise<(Task & { subtasks: Subtask[] })[]> {
+    return await db
+      .select()
+      .from(tasks)
+      .leftJoin(subtasks, eq(tasks.id, subtasks.taskId))
+      .where(eq(tasks.projectId, projectId))
+      .then((rows) => {
+        const tasksMap = new Map<number, Task & { subtasks: Subtask[] }>();
+        rows.forEach((row) => {
+          const task = row.tasks;
+          const subtask = row.subtasks;
+          if (!tasksMap.has(task.id)) {
+            tasksMap.set(task.id, { ...task, subtasks: [] });
+          }
+          if (subtask) {
+            tasksMap.get(task.id)!.subtasks.push(subtask);
+          }
+        });
+        return Array.from(tasksMap.values());
+      });
   }
 }
+
