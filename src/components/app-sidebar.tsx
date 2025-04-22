@@ -21,7 +21,6 @@
 // // } from "@/components/ui/sidebar";
 // // import Link from "next/link";
 
-
 // // import { WMSRepository } from "@/lib/Repository";
 
 // // export async function AppSidebar() {
@@ -62,7 +61,6 @@
 // //   );
 // // }
 
-
 import {
   Sidebar,
   SidebarContent,
@@ -75,22 +73,21 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { 
+import {
   Plus,
-  Briefcase, 
-  Code, 
-  FileText, 
+  Briefcase,
+  Code,
+  FileText,
   Folder,
-  Globe, 
-  Layout, 
-  Lightbulb, 
-  Package, 
-  Rocket, 
-  Star, 
+  Globe,
+  Layout,
+  Lightbulb,
+  Package,
+  Rocket,
+  Star,
   Settings, // Replaced 'Tool' with 'Settings'
   Zap,
-
-  PlusCircle
+  PlusCircle,
 } from "lucide-react";
 
 import { WMSRepository } from "@/lib/Repository";
@@ -99,7 +96,7 @@ import { WMSRepository } from "@/lib/Repository";
 function getProjectIcon(projectName: string) {
   // Use the first letter to select an icon
   const firstLetter = projectName.charAt(0).toLowerCase();
-  
+
   // Map letters to icons
   // const iconMap: Record<string, typeof Star> = {
   //   a: Rocket,
@@ -129,7 +126,7 @@ function getProjectIcon(projectName: string) {
   //   y: Rocket,
   //   z: Briefcase
   // };
-  
+
   const iconMap: Record<string, typeof Star> = {
     a: Rocket,
     b: Package,
@@ -156,10 +153,9 @@ function getProjectIcon(projectName: string) {
     w: Star,
     x: Code,
     y: Zap,
-    z: Settings
+    z: Settings,
   };
-  
-  
+
   // Return the mapped icon or a default icon if not found
   return iconMap[firstLetter] || Star;
 }
@@ -171,28 +167,28 @@ function getProjectColor(projectName: string): string {
   for (let i = 0; i < projectName.length; i++) {
     hash = projectName.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
+
   // Convert to hex color
-  let color = '#';
+  let color = "#";
   for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xFF;
-    color += ('00' + value.toString(16)).substr(-2);
+    const value = (hash >> (i * 8)) & 0xff;
+    color += ("00" + value.toString(16)).substr(-2);
   }
-  
+
   return color;
 }
 
 export async function AppSidebar() {
   const repo = new WMSRepository();
   const projects = await repo.getProjects();
-  
+
   return (
-    <Sidebar collapsible="icon" variant="floating" >
+    <Sidebar collapsible="icon" variant="floating">
       <SidebarContent>
         {/* <h1>hi</h1> */}
         <SidebarGroup>
           <SidebarGroupLabel>
-            Your Projects
+            <Link href="/projects">Your Projects</Link>
           </SidebarGroupLabel>
           <SidebarGroupAction title="Add Project">
             <Link href="/projects/new">
@@ -204,11 +200,14 @@ export async function AppSidebar() {
               {projects.map((project) => {
                 const ProjectIcon = getProjectIcon(project.name);
                 const iconColor = getProjectColor(project.name);
-                
+
                 return (
                   <SidebarMenuItem key={project.name}>
                     <SidebarMenuButton asChild>
-                      <a href={`/projects/${project.id}`} className="flex items-center gap-2">
+                      <a
+                        href={`/projects/${project.id}`}
+                        className="flex items-center gap-2"
+                      >
                         <ProjectIcon size={18} style={{ color: iconColor }} />
                         <span>{project.name}</span>
                       </a>
@@ -223,9 +222,6 @@ export async function AppSidebar() {
     </Sidebar>
   );
 }
-
-
-
 
 // import {
 //   Sidebar,
@@ -250,14 +246,14 @@ export async function AppSidebar() {
 //   for (let i = 0; i < projectName.length; i++) {
 //     hash = projectName.charCodeAt(i) + ((hash << 5) - hash);
 //   }
-  
+
 //   // Convert to hex color
 //   let color = '#';
 //   for (let i = 0; i < 3; i++) {
 //     const value = (hash >> (i * 8)) & 0xFF;
 //     color += ('00' + value.toString(16)).substr(-2);
 //   }
-  
+
 //   return color;
 // }
 
@@ -265,12 +261,12 @@ export async function AppSidebar() {
 // function getContrastColor(hexColor: string): string {
 //   // Remove the # if it exists
 //   const hex = hexColor.replace('#', '');
-  
+
 //   // Convert hex to RGB
 //   const r = parseInt(hex.substr(0, 2), 16);
 //   const g = parseInt(hex.substr(2, 2), 16);
 //   const b = parseInt(hex.substr(4, 2), 16);
-  
+
 //   // Calculate luminance - bright colors have white text, dark colors have black text
 //   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 //   return luminance > 0.5 ? '#000000' : '#ffffff';
@@ -279,7 +275,7 @@ export async function AppSidebar() {
 // export async function AppSidebar() {
 //   const repo = new WMSRepository();
 //   const projects = await repo.getProjects();
-  
+
 //   return (
 //     <Sidebar collapsible="icon" variant="floating">
 //       <SidebarContent>
@@ -299,13 +295,13 @@ export async function AppSidebar() {
 //                 const bgColor = getProjectColor(project.name);
 //                 const textColor = getContrastColor(bgColor);
 //                 const firstLetter = project.name.charAt(0).toUpperCase();
-                
+
 //                 return (
 //                   <SidebarMenuItem key={project.name}>
 //                     <SidebarMenuButton asChild>
 //                       <a href={`/projects/${project.id}`} className="flex items-center gap-2">
 //                         {/* First letter avatar */}
-//                         <div 
+//                         <div
 //                           className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
 //                           style={{ backgroundColor: bgColor, color: textColor }}
 //                         >
