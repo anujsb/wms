@@ -13,6 +13,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { WMSRepository } from "@/lib/Repository";
 import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 export default async function NewTaskPage({ params }: any) {
   const repo = new WMSRepository();
@@ -55,103 +57,120 @@ export default async function NewTaskPage({ params }: any) {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Create New Task</h1>
-      <form action={createTask} className="space-y-4">
-        <div>
-          <Label className="block text-sm font-medium">Name</Label>
-          <Input
-            type="text"
-            name="name"
-            required
-            className="mt-1 w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <Label className="block text-sm font-medium">Description</Label>
-          <Textarea
-            name="description"
-            className="mt-1 w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <Label className="block text-sm font-medium">Due Date</Label>
-          <Input
-            type="date"
-            name="dueDate"
-            className="mt-1 w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <Label className="block text-sm font-medium">
-            Time Required (hours)
-          </Label>
-          <Input
-            type="number"
-            name="timeRequired"
-            min="0"
-            className="mt-1 w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <Label className="block text-sm font-medium">Priority</Label>
-          <Select name="priority">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Priority</SelectLabel>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="block text-sm font-medium">Assigned To</Label>
-          <Select name="assignedTo">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Assigned To" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Assign To</SelectLabel>
-                {/* <SelectItem value="">Unassigned</SelectItem> */}
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id.toString()}>
-                    {user.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="container mx-auto p-6 max-w-3xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Task</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={createTask} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Task Name</Label>
+              <Input
+                id="name"
+                name="name"
+                required
+                placeholder="Enter task name"
+              />
+            </div>
 
-        <div>
-          <Label className="block text-sm font-medium">Status</Label>
-          <Select name="status">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Status</SelectLabel>
-                <SelectItem value="todo">To Do</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Create
-        </Button>
-      </form>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter task description"
+                className="min-h-[100px]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">Due Date</Label>
+                <Input
+                  id="dueDate"
+                  name="dueDate"
+                  type="date"
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timeRequired">Time Required (hours)</Label>
+                <Input
+                  id="timeRequired"
+                  name="timeRequired"
+                  type="number"
+                  min="0"
+                  placeholder="Enter hours"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select name="priority">
+                  <SelectTrigger id="priority">
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Priority</SelectLabel>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select name="status">
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Status</SelectLabel>
+                      <SelectItem value="todo">To Do</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="assignedTo">Assigned To</Label>
+              <Select name="assignedTo">
+                <SelectTrigger id="assignedTo">
+                  <SelectValue placeholder="Select assignee" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Assign To</SelectLabel>
+                    {users.map((user) => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <Button variant="outline" type="button" asChild>
+                <Link href={`/projects/${projectId}`}>Cancel</Link>
+              </Button>
+              <Button type="submit">Create Task</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
