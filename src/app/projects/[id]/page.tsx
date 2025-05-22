@@ -1,3 +1,4 @@
+// src/app/projects/[id]/page.tsx
 import { WMSRepository } from '@/lib/Repository';
 import Link from 'next/link';
 import { Badge } from "@/components/ui/badge";
