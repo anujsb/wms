@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { toast } from "sonner";
+import { toast } from "sonner";
 
 export interface SubtaskFormProps {
   type: "edit" | "create";
@@ -90,10 +90,10 @@ export function SubtaskForm({
 
       router.push(`/projects/${projectId}/tasks/${taskId}`);
       router.refresh();
-    //   toast.success(type === "edit" ? "Subtask updated" : "Subtask created");
+      toast.success(type === "edit" ? "Subtask updated" : "Subtask created");
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
-    //   toast.error("Failed to save subtask");
+      toast.error("Failed to save subtask");
     } finally {
       setIsLoading(false);
     }
@@ -114,10 +114,10 @@ export function SubtaskForm({
 
       router.push(`/projects/${projectId}/tasks/${taskId}`);
       router.refresh();
-    //   toast.success("Subtask deleted");
+      toast.success("Subtask deleted");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to delete subtask");
-    //   toast.error("Failed to delete subtask");
+      toast.error("Failed to delete subtask");
     } finally {
       setIsLoading(false);
       setShowDeleteDialog(false);

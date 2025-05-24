@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { toast } from "sonner";
+import { toast } from "sonner";
 
 interface TaskFormProps {
   type: "edit" | "create";
@@ -77,8 +77,14 @@ export function TaskForm({ type, projectId, taskId, users, initialData, projectN
       
       router.push(`/projects/${projectId}/tasks/${result.id || taskId}`);
       router.refresh();
+      toast.success(type === "edit" ? "Task updated successfully" : "Task created successfully", {
+        description: data.name,
+      });
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
+      toast.error("Failed to save task", {
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -99,8 +105,14 @@ export function TaskForm({ type, projectId, taskId, users, initialData, projectN
 
       router.push(`/projects/${projectId}`);
       router.refresh();
+      toast.success("Task deleted successfully", {
+        description: initialData?.name,
+      });
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to delete task");
+      toast.error("Failed to delete task", {
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+      });
     } finally {
       setIsLoading(false);
       setShowDeleteDialog(false);

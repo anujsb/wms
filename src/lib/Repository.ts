@@ -29,6 +29,48 @@ export class WMSRepository {
     return project || null;
   }
 
+  async updateProject(id: number, data: Partial<Project>): Promise<Project> {
+    try {
+      const [project] = await db.update(projects)
+        .set({ 
+          ...data, 
+          updatedAt: new Date(),
+        })
+        .where(eq(projects.id, id))
+        .returning();
+      
+      if (!project) {
+        throw new Error('Project not found');
+      }
+      
+      return project;
+    } catch (error) {
+      throw new Error(`Failed to update project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    try {
+      // Use a transaction to ensure all related data is deleted
+      await db.transaction(async (tx) => {
+        // First delete all subtasks of all tasks in the project
+        const projectTasks = await tx.select().from(tasks).where(eq(tasks.projectId, id));
+        for (const task of projectTasks) {
+          await tx.delete(subtasks).where(eq(subtasks.taskId, task.id));
+        }
+        // Then delete all tasks
+        await tx.delete(tasks).where(eq(tasks.projectId, id));
+        // Finally delete the project
+        const result = await tx.delete(projects).where(eq(projects.id, id));
+        if (!result) {
+          throw new Error('Project not found');
+        }
+      });
+    } catch (error) {
+      throw new Error(`Failed to delete project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   // Task Methods
   async createTask(projectId: number, data: OmitAutoFields<Task> & { name: string }): Promise<Task> {
     const [task] = await db.insert(tasks).values({ ...data, projectId }).returning();
@@ -91,6 +133,39 @@ export class WMSRepository {
     return await db.select().from(subtasks).where(eq(subtasks.taskId, taskId));
   }
 
+  async getSubtaskById(id: number): Promise<Subtask | null> {
+    const [subtask] = await db.select().from(subtasks).where(eq(subtasks.id, id));
+    return subtask || null;
+  }
+
+  async updateSubtask(id: number, data: Partial<Subtask>): Promise<Subtask> {
+    try {
+      const [subtask] = await db.update(subtasks)
+        .set({ 
+          ...data, 
+          updatedAt: new Date(),
+          taskId: undefined 
+        })
+        .where(eq(subtasks.id, id))
+        .returning();
+      
+      if (!subtask) {
+        throw new Error('Subtask not found');
+      }
+      
+      return subtask;
+    } catch (error) {
+      throw new Error(`Failed to update subtask: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  async deleteSubtask(id: number): Promise<void> {
+    const result = await db.delete(subtasks).where(eq(subtasks.id, id));
+    if (!result) {
+      throw new Error('Subtask not found');
+    }
+  }
+
   // User Methods (for assignment purposes)
   async getUsers(): Promise<User[]> {
     return await db.select().from(users);
@@ -117,40 +192,6 @@ export class WMSRepository {
         return Array.from(tasksMap.values());
       });
   }
-
-  // Add to WMSRepository class in Repository.ts
-async getSubtaskById(id: number): Promise<Subtask | null> {
-  const [subtask] = await db.select().from(subtasks).where(eq(subtasks.id, id));
-  return subtask || null;
-}
-
-async updateSubtask(id: number, data: Partial<Subtask>): Promise<Subtask> {
-  try {
-    const [subtask] = await db.update(subtasks)
-      .set({ 
-        ...data, 
-        updatedAt: new Date(),
-        taskId: undefined 
-      })
-      .where(eq(subtasks.id, id))
-      .returning();
-    
-    if (!subtask) {
-      throw new Error('Subtask not found');
-    }
-    
-    return subtask;
-  } catch (error) {
-    throw new Error(`Failed to update subtask: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
-
-async deleteSubtask(id: number): Promise<void> {
-  const result = await db.delete(subtasks).where(eq(subtasks.id, id));
-  if (!result) {
-    throw new Error('Subtask not found');
-  }
-}
 }
 
 
