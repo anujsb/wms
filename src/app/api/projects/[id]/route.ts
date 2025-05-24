@@ -6,9 +6,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await params;
+    // Remove the await on params as it's already resolved
     const repo = new WMSRepository();
-    await repo.deleteProject(parseInt(resolvedParams.id));
+    await repo.deleteProject(parseInt(params.id));
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
@@ -20,8 +20,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await params;
-    const projectId = parseInt(resolvedParams.id);
+    // Remove the await here as well
+    const projectId = parseInt(params.id);
     
     if (!projectId || isNaN(projectId)) {
       return NextResponse.json({ error: "Valid project ID is required" }, { status: 400 });
