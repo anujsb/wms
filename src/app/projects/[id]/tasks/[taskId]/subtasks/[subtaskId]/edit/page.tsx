@@ -4,11 +4,11 @@ import { SubtaskForm } from "@/components/subtask-form";
 import { notFound } from "next/navigation";
 
 interface PageParams {
-  params: {
+  params: Promise<{
     id: string;
     taskId: string;
     subtaskId: string;
-  }
+  }>
 }
 
 export default async function EditSubtaskPage({ params }: PageParams) {
@@ -47,13 +47,10 @@ export default async function EditSubtaskPage({ params }: PageParams) {
       <PageLayout breadcrumbs={breadcrumbs}>
         <div className="container mx-auto p-6 max-w-4xl">
           <SubtaskForm 
-            type="edit"
+            subtask={subtask}
+            users={users}
             projectId={projectId}
             taskId={taskId}
-            subtaskId={subtaskId}
-            users={users}
-            initialData={subtask}
-            taskName={task.name}
           />
         </div>
       </PageLayout>
@@ -61,9 +58,10 @@ export default async function EditSubtaskPage({ params }: PageParams) {
   } catch (error) {
     console.error("Error loading subtask:", error);
     return (
-      <div className="container mx-auto p-6">
-        <div className="bg-red-50 text-red-600 p-4 rounded-md">
-          Failed to load subtask. Please try again later.
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <p className="text-gray-600">Failed to load subtask. Please try again later.</p>
         </div>
       </div>
     );

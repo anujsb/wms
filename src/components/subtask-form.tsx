@@ -19,20 +19,27 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export interface SubtaskFormProps {
-  type: "edit" | "create";
-  projectId: number;
-  taskId: number;
-  subtaskId?: number;
+interface SubtaskFormProps {
+  subtask: {
+    id: number;
+    name: string;
+    description: string | null;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+    dueDate: Date | null;
+    timeRequired: number | null;
+    priority: string | null;
+    assignedTo: number | null;
+    status: string | null;
+    taskId: number | null;
+  };
   users: {
     id: number;
     name: string;
     email: string;
-    createdAt: Date | null;
-    updatedAt: Date | null;
   }[];
-  initialData?: any;
-  taskName: string;
+  projectId: number;
+  taskId: number;
 }
 
 function formatDateForInput(date: Date | string | null): string {
@@ -41,15 +48,7 @@ function formatDateForInput(date: Date | string | null): string {
   return d.toISOString().split('T')[0];
 }
 
-export function SubtaskForm({ 
-  type, 
-  projectId, 
-  taskId, 
-  subtaskId, 
-  users, 
-  initialData, 
-  taskName 
-}: SubtaskFormProps) {
+export function SubtaskForm({ subtask, users, projectId, taskId }: SubtaskFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +73,9 @@ export function SubtaskForm({
       };
 
       const response = await fetch(
-        type === "edit" ? `/api/subtasks/${subtaskId}` : '/api/subtasks',
+        `/api/subtasks/${subtask.id}`,
         {
-          method: type === "edit" ? "PATCH" : "POST",
+          method: "PATCH",
           headers: {
             'Content-Type': 'application/json',
           },
@@ -90,7 +89,7 @@ export function SubtaskForm({
 
       router.push(`/projects/${projectId}/tasks/${taskId}`);
       router.refresh();
-      toast.success(type === "edit" ? "Subtask updated" : "Subtask created");
+      toast.success("Subtask updated");
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
       toast.error("Failed to save subtask");
@@ -104,7 +103,7 @@ export function SubtaskForm({
     setError(null);
 
     try {
-      const response = await fetch(`/api/subtasks/${subtaskId}`, {
+      const response = await fetch(`/api/subtasks/${subtask.id}`, {
         method: "DELETE",
       });
 
@@ -128,11 +127,9 @@ export function SubtaskForm({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{type === "edit" ? "Edit Subtask" : "Create Subtask"}</CardTitle>
+          <CardTitle>Edit Subtask</CardTitle>
           <CardDescription>
-            {type === "edit" 
-              ? `Editing subtask in ${taskName}`
-              : `Create a new subtask in ${taskName}`}
+            Editing subtask in {subtask.name}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -143,7 +140,7 @@ export function SubtaskForm({
                 <Input
                   id="name"
                   name="name"
-                  defaultValue={initialData?.name}
+                  defaultValue={subtask.name}
                   required
                 />
               </div>
@@ -153,7 +150,7 @@ export function SubtaskForm({
                 <Textarea
                   id="description"
                   name="description"
-                  defaultValue={initialData?.description}
+                  defaultValue={subtask.description || ''} // Convert null to empty string
                 />
               </div>
 
@@ -164,7 +161,7 @@ export function SubtaskForm({
                     type="date"
                     id="dueDate"
                     name="dueDate"
-                    defaultValue={formatDateForInput(initialData?.dueDate)}
+                    defaultValue={formatDateForInput(subtask.dueDate)}
                   />
                 </div>
 
@@ -174,7 +171,7 @@ export function SubtaskForm({
                     type="number"
                     id="timeRequired"
                     name="timeRequired"
-                    defaultValue={initialData?.timeRequired}
+                    defaultValue={subtask.timeRequired?.toString() || ''} // Convert null to empty string
                   />
                 </div>
               </div>
@@ -182,7 +179,7 @@ export function SubtaskForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="priority">Priority</Label>
-                  <Select name="priority" defaultValue={initialData?.priority}>
+                  <Select name="priority" defaultValue={subtask.priority || undefined}> // Convert null to undefined
                     <SelectTrigger>
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
@@ -196,7 +193,7 @@ export function SubtaskForm({
 
                 <div>
                   <Label htmlFor="assignedTo">Assigned To</Label>
-                  <Select name="assignedTo" defaultValue={initialData?.assignedTo?.toString()}>
+                  <Select name="assignedTo" defaultValue={subtask.assignedTo?.toString()}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select user" />
                     </SelectTrigger>
@@ -213,7 +210,7 @@ export function SubtaskForm({
 
               <div>
                 <Label htmlFor="status">Status</Label>
-                <Select name="status" defaultValue={initialData?.status}>
+                <Select name="status" defaultValue={subtask.status || undefined}> // Convert null to undefined
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -242,19 +239,17 @@ export function SubtaskForm({
                 Cancel
               </Button>
               
-              {type === "edit" && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={isLoading}
-                >
-                  Delete Subtask
-                </Button>
-              )}
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isLoading}
+              >
+                Delete Subtask
+              </Button>
 
               <Button type="submit" disabled={isLoading}>
-                {type === "edit" ? "Update Subtask" : "Create Subtask"}
+                Update Subtask
               </Button>
             </div>
           </form>

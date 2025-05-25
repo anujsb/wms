@@ -27,7 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { PageLayout } from "@/components/layouts/page-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function TaskPage({ params }: { params: { id: string; taskId: string } }) {
+export default async function TaskPage({ params }: { params: Promise<{ id: string; taskId: string }> }) {
   const repo = new WMSRepository();
   
   try {

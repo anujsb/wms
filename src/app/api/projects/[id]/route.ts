@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Remove the await on params as it's already resolved
+    // Await params since it's now a Promise in Next.js 15
+    const { id } = await params;
     const repo = new WMSRepository();
-    await repo.deleteProject(parseInt(params.id));
+    await repo.deleteProject(parseInt(id));
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
@@ -17,11 +18,12 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Remove the await here as well
-    const projectId = parseInt(params.id);
+    // Await params here as well
+    const { id } = await params;
+    const projectId = parseInt(id);
     
     if (!projectId || isNaN(projectId)) {
       return NextResponse.json({ error: "Valid project ID is required" }, { status: 400 });

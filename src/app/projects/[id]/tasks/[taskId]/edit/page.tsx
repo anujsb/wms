@@ -4,10 +4,10 @@ import { TaskForm } from "@/components/task-form";
 import { notFound } from "next/navigation";
 
 interface PageParams {
-  params: {
+  params: Promise<{
     id: string;
     taskId: string;
-  }
+  }>
 }
 
 export default async function EditTaskPage({ params }: PageParams) {

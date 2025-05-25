@@ -4,9 +4,9 @@ import { ProjectForm } from "@/components/project-form";
 import { notFound } from "next/navigation";
 
 interface PageParams {
-  params: {
+  params: Promise<{
     id: string;
-  }
+  }>
 }
 
 export default async function EditProjectPage({ params }: PageParams) {
